@@ -1,4 +1,11 @@
-export default function Home() {
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { signOut } from "@/app/actions/auth";
+
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <div className="flex flex-col flex-1 items-center">
       <header className="w-full border-b border-border">
@@ -10,12 +17,23 @@ export default function Home() {
             </span>
           </div>
           <nav className="flex items-center gap-3 text-sm text-muted">
-            <span>Rankings</span>
+            <Link href="/dashboard">Rankings</Link>
             <span>Portfolio</span>
             <span>Backtest</span>
-            <button className="rounded-full border border-border bg-background-elevated px-4 py-1.5 text-foreground transition-colors hover:border-accent">
-              Sign in
-            </button>
+            {user ? (
+              <form action={signOut}>
+                <button className="rounded-full border border-border bg-background-elevated px-4 py-1.5 text-foreground transition-colors hover:border-accent">
+                  Sign out
+                </button>
+              </form>
+            ) : (
+              <Link
+                href="/login"
+                className="rounded-full border border-border bg-background-elevated px-4 py-1.5 text-foreground transition-colors hover:border-accent"
+              >
+                Sign in
+              </Link>
+            )}
           </nav>
         </div>
       </header>
@@ -34,9 +52,12 @@ export default function Home() {
           portfolio without lookahead bias.
         </p>
         <div className="mt-2 flex gap-3">
-          <button className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent-2">
+          <Link
+            href="/dashboard"
+            className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent-2"
+          >
             View top rankings
-          </button>
+          </Link>
           <button className="rounded-full border border-border px-6 py-2.5 text-sm font-medium text-muted transition-colors hover:border-accent hover:text-foreground">
             Run a backtest
           </button>
