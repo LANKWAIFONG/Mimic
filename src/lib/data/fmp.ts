@@ -1,4 +1,4 @@
-const BASE = "https://financialmodelingprep.com/api/v3";
+const BASE = "https://financialmodelingprep.com/stable";
 
 function apiKey() {
   const key = process.env.FMP_API_KEY;
@@ -17,7 +17,7 @@ async function get<T>(path: string, params: Record<string, string> = {}): Promis
 
 export interface FmpIncomeStatement {
   date: string;
-  fillingDate: string;
+  filingDate: string;
   acceptedDate: string;
   period: string;
   revenue: number;
@@ -25,11 +25,12 @@ export interface FmpIncomeStatement {
   costOfRevenue: number;
   netIncome: number;
   eps: number;
+  weightedAverageSHsOut: number;
 }
 
 export interface FmpBalanceSheet {
   date: string;
-  fillingDate: string;
+  filingDate: string;
   acceptedDate: string;
   period: string;
   totalAssets: number;
@@ -37,13 +38,13 @@ export interface FmpBalanceSheet {
   totalCurrentAssets: number;
   totalCurrentLiabilities: number;
   longTermDebt: number;
-  commonStock: number;
-  weightedAverageShsOut: number;
+  commonStockSharesOutstanding: number;
+  weightedAverageSHsOut: number;
 }
 
 export interface FmpCashFlow {
   date: string;
-  fillingDate: string;
+  filingDate: string;
   acceptedDate: string;
   period: string;
   operatingCashFlow: number;
@@ -55,18 +56,30 @@ export interface FmpQuote {
 }
 
 export async function getIncomeStatements(ticker: string, period: "annual" | "quarter" = "annual", limit = 5) {
-  return get<FmpIncomeStatement[]>(`/income-statement/${ticker}`, { period, limit: String(limit) });
+  return get<FmpIncomeStatement[]>("/income-statement", {
+    symbol: ticker,
+    period: period === "annual" ? "FY" : "Q1",
+    limit: String(limit),
+  });
 }
 
 export async function getBalanceSheets(ticker: string, period: "annual" | "quarter" = "annual", limit = 5) {
-  return get<FmpBalanceSheet[]>(`/balance-sheet-statement/${ticker}`, { period, limit: String(limit) });
+  return get<FmpBalanceSheet[]>("/balance-sheet-statement", {
+    symbol: ticker,
+    period: period === "annual" ? "FY" : "Q1",
+    limit: String(limit),
+  });
 }
 
 export async function getCashFlows(ticker: string, period: "annual" | "quarter" = "annual", limit = 5) {
-  return get<FmpCashFlow[]>(`/cash-flow-statement/${ticker}`, { period, limit: String(limit) });
+  return get<FmpCashFlow[]>("/cash-flow-statement", {
+    symbol: ticker,
+    period: period === "annual" ? "FY" : "Q1",
+    limit: String(limit),
+  });
 }
 
 export async function getQuote(ticker: string) {
-  const data = await get<FmpQuote[]>(`/quote/${ticker}`);
+  const data = await get<FmpQuote[]>("/quote", { symbol: ticker });
   return data[0] ?? null;
 }

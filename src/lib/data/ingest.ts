@@ -70,7 +70,7 @@ export async function ingestTicker(
 
       // Use acceptedDate (SEC filing timestamp) as the point-in-time marker.
       // Fall back to fillingDate if acceptedDate is absent.
-      const filedAt = inc.acceptedDate || inc.fillingDate || inc.date;
+      const filedAt = inc.acceptedDate || inc.filingDate || inc.date;
 
       const { error } = await supabase.from("fundamentals_snapshots").upsert(
         {
@@ -87,7 +87,7 @@ export async function ingestTicker(
           current_liabilities: bal.totalCurrentLiabilities,
           gross_profit: inc.grossProfit,
           cost_of_revenue: inc.costOfRevenue,
-          shares_outstanding: bal.weightedAverageShsOut ?? bal.commonStock,
+          shares_outstanding: inc.weightedAverageSHsOut ?? bal.commonStockSharesOutstanding,
           long_term_debt: bal.longTermDebt,
           // Only attach live quote valuation to the most-recent period
           pe_ratio: inc.date === incomeList[0]?.date ? (quote?.pe ?? null) : null,
