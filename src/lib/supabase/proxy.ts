@@ -4,6 +4,11 @@ import { NextResponse, type NextRequest } from "next/server";
 const PROTECTED_PATHS = ["/dashboard", "/portfolio"];
 
 export async function updateSession(request: NextRequest) {
+  // Always pass through API routes — they handle their own auth.
+  if (request.nextUrl.pathname.startsWith("/api/")) {
+    return NextResponse.next();
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
